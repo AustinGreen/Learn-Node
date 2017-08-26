@@ -1,8 +1,8 @@
-const mongoose = require('./mongoose');
+const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const slug = require('slugs');
 
-const storeSchema = new mongoose.schema({
+const storeSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
@@ -14,6 +14,16 @@ const storeSchema = new mongoose.schema({
     trim: true
   },
   tags: [String]
+});
+
+storeSchema.pre('save', function(next) {
+  if (!this.isModified('name')) {
+    next();
+    return;
+  }
+  this.slug = slug(this.name);
+  next();
+  // TODO: Make sure slugs are unique
 });
 
 module.exports = mongoose.model('Store', storeSchema);
